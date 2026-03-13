@@ -13,7 +13,7 @@ import re
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import ClassVar
+from typing import TYPE_CHECKING, ClassVar
 
 import yaml
 from pydantic import BaseModel
@@ -22,6 +22,10 @@ from core.exceptions import HulkViolationError
 from core.models import AgentRole, LogEntry, Mission
 from tools.file_tools import read_file, resolve_safe_path, write_file
 from tools.shell_tools import run_command
+
+# Importación diferida para evitar circularidad en tiempo de carga
+if TYPE_CHECKING:
+    from tools.hallucination_detector import HallucinationDetector
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +71,13 @@ class HulkAgent:
         (r"\brequests\.", "requests síncrono — usa httpx async"),
     ]
 
-    def __init__(self, project_root: Path) -> None:
+    def __init__(
+        self,
+        project_root: Path,
+        hallucination_detector: HallucinationDetector | None = None,
+    ) -> None:
         self._root = project_root
+        self.hallucination_detector = hallucination_detector
 
     async def run(self, mission: Mission) -> Mission:
         """Escanea archivos con status='created' en MAP.yaml y genera hulk_report.yaml."""
@@ -124,6 +133,10 @@ class HulkAgent:
 
         violations.extend(await self._check_imports(file_path))
         violations.extend(await self._check_forbidden(file_path))
+
+        if self.hallucination_detector is not None:
+            hallucination_violations = await self.hallucination_detector.scan_all([file_path])
+            violations.extend(hallucination_violations)
 
         return violations
 
