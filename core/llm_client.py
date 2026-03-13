@@ -51,6 +51,8 @@ class AgentRole(str, Enum):
     IRON_CODER = "iron_coder"
     BLACK_WIDOW = "black_widow"
     INFILTRADO = "infiltrado"
+    VISION_UI = "vision_ui"
+    API_FABRICATOR = "api_fabricator"
 
 
 # Claude para roles de código; GPT-4o para estrategia/orquestación.
@@ -61,10 +63,18 @@ _ROLE_TO_MODEL: dict[AgentRole, str] = {
     AgentRole.IRON_CODER: _CLAUDE_MODEL,
     AgentRole.BLACK_WIDOW: _CLAUDE_MODEL,
     AgentRole.INFILTRADO: _CLAUDE_MODEL,
+    AgentRole.VISION_UI: _CLAUDE_MODEL,
+    AgentRole.API_FABRICATOR: _CLAUDE_MODEL,
 }
 
 _CLAUDE_ROLES: frozenset[AgentRole] = frozenset(
-    {AgentRole.IRON_CODER, AgentRole.BLACK_WIDOW, AgentRole.INFILTRADO}
+    {
+        AgentRole.IRON_CODER,
+        AgentRole.BLACK_WIDOW,
+        AgentRole.INFILTRADO,
+        AgentRole.VISION_UI,
+        AgentRole.API_FABRICATOR,
+    }
 )
 
 
