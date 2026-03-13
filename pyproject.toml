@@ -33,6 +33,8 @@ dependencies = [
     # Scraping — Thor AMD-01
     "beautifulsoup4>=4.12.0",
     "lxml>=5.2.0",
+    # YAML serialization — Thor brief output
+    "pyyaml>=6.0.0",
 ]
 
 [project.optional-dependencies]
