@@ -30,7 +30,7 @@ class CheckpointRecord(BaseModel):
     blocking_agent: AgentRole
     reason: str
     retry_attempts: int
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))  # noqa: UP017
     resolved_at: datetime | None = None
     resolution: str | None = None  # "resume" | "abort" | "retry_override"
 
@@ -94,7 +94,7 @@ class CheckpointManager:
 
         # 2. Persiste misión con status AWAITING_HUMAN (fuente de verdad)
         mission.status = MissionStatus.AWAITING_HUMAN
-        mission.updated_at = datetime.now(timezone.utc)
+        mission.updated_at = datetime.now(timezone.utc)  # noqa: UP017
         await self._repo.save_mission(mission)
 
         # 3. Notifica — puede fallar sin comprometer la persistencia
@@ -115,7 +115,7 @@ class CheckpointManager:
         if resolution not in VALID_RESOLUTIONS:
             raise ValueError(f"Resolución inválida: {resolution!r}")
 
-        resolved_at = datetime.now(timezone.utc)
+        resolved_at = datetime.now(timezone.utc)  # noqa: UP017
 
         if resolution == "abort":
             mission.status = MissionStatus.ABORTED
