@@ -137,6 +137,12 @@ class MissionRepository:
         )
         return result.matched_count > 0
 
+    async def list_by_status(self, status: MissionStatus) -> list[Mission]:
+        """Retorna todas las misiones con el status dado."""
+        cursor = self._col.find({"status": status.value})
+        docs = await cursor.to_list(length=1000)
+        return [_from_doc(doc) for doc in docs]
+
 
 # Singleton — reutilizar entre módulos.
 mission_repo = MissionRepository()
