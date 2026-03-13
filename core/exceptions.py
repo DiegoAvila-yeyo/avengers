@@ -43,3 +43,15 @@ class BlueprintNotApprovedError(AvengersBaseError):
 
 class RootJailViolationError(AvengersBaseError):
     """Un tool intentó acceder a una ruta fuera del proyecto. [ROOT JAIL]"""
+
+
+class HulkViolationError(AvengersBaseError):
+    """Hulk encontró violaciones de tipo 'error' — bloquea el avance del pipeline."""
+
+    def __init__(self, mission_id: str, error_count: int) -> None:
+        self.mission_id = mission_id
+        self.error_count = error_count
+        super().__init__(
+            f"[HULK] Misión {mission_id}: {error_count} violación(es) de tipo error. "
+            "Corrige antes de continuar."
+        )

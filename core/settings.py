@@ -6,7 +6,7 @@ Usar siempre la instancia singleton `settings` importada desde este módulo.
     from core.settings import settings
 """
 
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -57,6 +57,20 @@ class Settings(BaseSettings):
     database_url: str = Field(
         default="mongodb://localhost:27017/avengers",
         description="URL de conexión a la base de datos (MongoDB o PostgreSQL).",
+    )
+
+    # ── Deploy ──────────────────────────────────────────────────────────────
+    railway_token: Optional[SecretStr] = Field(
+        default=None,
+        description="Token de Railway CLI para deploys programáticos.",
+    )
+    vercel_token: Optional[SecretStr] = Field(
+        default=None,
+        description="Token de Vercel CLI para deploys programáticos.",
+    )
+    deploy_url: Optional[str] = Field(
+        default=None,
+        description="URL base del backend desplegado para health checks.",
     )
 
     # ── App Config ──────────────────────────────────────────────────────────

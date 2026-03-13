@@ -12,7 +12,7 @@ from core.exceptions import AvengersBaseError
 
 # Lista blanca estricta — Iron-Coder solo necesita estas herramientas.
 ALLOWED_COMMANDS: frozenset[str] = frozenset(
-    {"python", "python3", "pytest", "ruff", "mypy", "git", "pip", "uv", "echo"}
+    {"python", "python3", "pytest", "ruff", "mypy", "git", "pip", "uv", "echo", "railway", "vercel"}
 )
 
 
@@ -67,10 +67,10 @@ async def run_command(
         stdout_bytes, stderr_bytes = await asyncio.wait_for(
             proc.communicate(), timeout=timeout
         )
-    except asyncio.TimeoutError:
+    except TimeoutError:
         proc.kill()
         await proc.wait()
-        raise ShellTimeoutError(binary, timeout)
+        raise ShellTimeoutError(binary, timeout) from None
 
     return (
         proc.returncode if proc.returncode is not None else -1,
