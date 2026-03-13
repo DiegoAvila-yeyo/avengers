@@ -30,6 +30,9 @@ dependencies = [
     "anthropic>=0.28.0",
     # Retry logic — AMD-02
     "tenacity>=8.3.0",
+    # Scraping — Thor AMD-01
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.2.0",
 ]
 
 [project.optional-dependencies]
