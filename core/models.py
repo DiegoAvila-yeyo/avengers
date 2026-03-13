@@ -21,9 +21,11 @@ class MissionStatus(str, Enum):
 
     IDLE = "idle"
     IN_PROGRESS = "in_progress"
+    AWAITING_HUMAN = "awaiting_human"
     REVIEW = "review"
     DONE = "done"
     FAILED = "failed"
+    ABORTED = "aborted"
 
 
 class MissionPhase(int, Enum):
@@ -34,6 +36,37 @@ class MissionPhase(int, Enum):
     IRON_CODER = 3
     BLACK_WIDOW = 4
     INFILTRADO = 5
+
+
+class AgentRole(str, Enum):
+    """Roles de agentes del sistema AVENGERS."""
+
+    NICK_FURY = "nick_fury"
+    THOR = "thor"
+    CAPTAIN_AMERICA = "captain_america"
+    IRON_CODER = "iron_coder"
+    BLACK_WIDOW = "black_widow"
+    INFILTRADO = "infiltrado"
+    VISION_UI = "vision_ui"
+    API_FABRICATOR = "api_fabricator"
+
+
+class RetryPolicy(BaseModel):
+    """Política de reintentos exponencial para Nick Fury dispatcher."""
+
+    max_attempts: int = Field(default=3, ge=1, description="Máximo de intentos.")
+    base_delay: float = Field(default=2.0, gt=0, description="Delay base en segundos.")
+    attempt: int = Field(default=0, ge=0, description="Intento actual (0-indexed).")
+
+    @property
+    def is_exhausted(self) -> bool:
+        """True si ya se alcanzó el máximo de intentos."""
+        return self.attempt >= self.max_attempts
+
+    @property
+    def next_delay(self) -> float:
+        """Delay exponencial para el siguiente intento: base_delay * 2^attempt."""
+        return self.base_delay * (2 ** self.attempt)
 
 
 # ── Sub-modelos ───────────────────────────────────────────────────────────────
@@ -84,4 +117,16 @@ class Mission(BaseModel):
     log: list[LogEntry] = Field(
         default_factory=list,
         description="Historial de eventos (máx. 50 entradas, TTL gestionado por repo).",
+    )
+    approved_by_human: bool = Field(
+        default=False,
+        description="True cuando un humano aprobó el blueprint (checkpoint fase 2→3).",
+    )
+    retry_policy: RetryPolicy = Field(
+        default_factory=RetryPolicy,
+        description="Política de reintentos para el dispatcher de Nick Fury.",
+    )
+    output_dir: str = Field(
+        default="output/",
+        description="Directorio de destino para los artefactos finales.",
     )
