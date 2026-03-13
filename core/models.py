@@ -49,6 +49,7 @@ class AgentRole(str, Enum):
     INFILTRADO = "infiltrado"
     VISION_UI = "vision_ui"
     API_FABRICATOR = "api_fabricator"
+    HULK = "hulk"
 
 
 class RetryPolicy(BaseModel):
