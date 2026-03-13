@@ -8,12 +8,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from core.exceptions import RootJailViolationError
+
 # Raíz inmutable del proyecto — nunca se sobreescribe en runtime.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[1]
 
-
-class PathEscapeError(ValueError):
-    """Se lanza cuando una ruta intenta salir de PROJECT_ROOT."""
+# Alias de compatibilidad con código anterior que captura PathEscapeError.
+PathEscapeError = RootJailViolationError
 
 
 def resolve_safe_path(relative: str | Path) -> Path:
@@ -26,31 +27,31 @@ def resolve_safe_path(relative: str | Path) -> Path:
         Ruta absoluta resuelta dentro de PROJECT_ROOT.
 
     Raises:
-        PathEscapeError: Si la ruta resuelta queda fuera de PROJECT_ROOT.
+        RootJailViolationError: Si la ruta resuelta queda fuera de PROJECT_ROOT.
 
     Example:
         >>> resolve_safe_path("output/my_file.py")
         PosixPath('/…/avengers/output/my_file.py')
-        >>> resolve_safe_path("../../etc/passwd")  # ← lanza PathEscapeError
+        >>> resolve_safe_path("../../etc/passwd")  # ← lanza RootJailViolationError
     """
     resolved = (PROJECT_ROOT / relative).resolve()
     if not resolved.is_relative_to(PROJECT_ROOT):
-        raise PathEscapeError(
+        raise RootJailViolationError(
             f"AMD-01 ROOT JAIL — ruta fuera del proyecto: {resolved!r}"
         )
     return resolved
 
 
-def safe_write_text(relative: str | Path, content: str, encoding: str = "utf-8") -> Path:
+def write_file(relative: str | Path, content: str, encoding: str = "utf-8") -> Path:
     """Escribe *content* en *relative* (relativo a PROJECT_ROOT) de forma segura.
 
-    Crea los directorios padre si no existen.
+    Crea los directorios padre automáticamente si no existen.
 
     Returns:
         Ruta absoluta del archivo escrito.
 
     Raises:
-        PathEscapeError: Si la ruta intenta salir de PROJECT_ROOT.
+        RootJailViolationError: Si la ruta intenta salir de PROJECT_ROOT.
     """
     target = resolve_safe_path(relative)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -58,12 +59,17 @@ def safe_write_text(relative: str | Path, content: str, encoding: str = "utf-8")
     return target
 
 
-def safe_read_text(relative: str | Path, encoding: str = "utf-8") -> str:
+def read_file(relative: str | Path, encoding: str = "utf-8") -> str:
     """Lee y devuelve el contenido de *relative* (relativo a PROJECT_ROOT).
 
     Raises:
-        PathEscapeError: Si la ruta intenta salir de PROJECT_ROOT.
+        RootJailViolationError: Si la ruta intenta salir de PROJECT_ROOT.
         FileNotFoundError: Si el archivo no existe.
     """
     source = resolve_safe_path(relative)
     return source.read_text(encoding=encoding)
+
+
+# Aliases de compatibilidad con código anterior.
+safe_write_text = write_file
+safe_read_text = read_file
