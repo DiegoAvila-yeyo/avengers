@@ -3,7 +3,7 @@
 > **Versión**: 0.3.0 · Estado: Backlog Activo · Última actualización: 2026-03-13
 
 ---
-
+    
 ## 🛡️ Enmiendas de Resiliencia y Seguridad (v0.3.0)
 
 Aplicadas a los prompts 03-16. Cada prompt afectado las declara explícitamente.
